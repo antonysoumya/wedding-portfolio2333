@@ -264,13 +264,12 @@ const SOURCES = {
   bride: [31, 45, 32, 46, 8, 9, 10, 11, 33, 7, 6, 5, 4, 3, 2],
   // Groom — solo groom + getting-ready details.
   groom: [39, 40, 41, 42, 43, 83, 84, 85, 86, 87, 88, 89, 90, 37, 38],
-  // Together / pre-wedding — pre-wedding couple in the 3D stack, green-outfit
-  // couple frames featured in the story cards.
-  together: [1, 16, 17, 18, 97, 98, 99, 106, 107, 108, 13, 14, 15, 12, 109],
-  // Ceremony — details + altar; index 10 is the large "cover" photo (couple on
-  // the church steps).
+  // Together — the green-outfit couple set (going-away + romantic couple frames).
+  together: [106, 107, 108, 109, 110, 97, 98, 99, 100, 101, 102, 103, 104, 105, 33],
+  // Ceremony — details + altar; index 10 is the large landscape "cover" photo
+  // (altar) that fills the 4:3 frame.
   ceremony: [
-    34, 35, 36, 44, 47, 48, 49, 69, 70, 71, 50, 72, 73, 74, 75, 76, 77, 78, 79,
+    34, 35, 36, 44, 47, 49, 50, 69, 70, 71, 48, 72, 73, 74, 75, 76, 77, 78, 79,
     80, 81, 82, 91, 92, 93,
   ],
   // Family & blessings — family groups + couple with elders/guests.
@@ -285,6 +284,35 @@ const SOURCES = {
   forever: [63, 64, 65, 66, 67, 68, 100, 101, 102, 103, 104, 105, 119, 120, 96],
 }
 
+// True display orientation of each source photo (measured from the files), so
+// each card gets the right shape and object-cover doesn't crop people out.
+const ORIENTATION = {
+  1: 'landscape', 2: 'landscape', 3: 'landscape', 4: 'landscape', 5: 'portrait',
+  6: 'portrait', 7: 'landscape', 8: 'portrait', 9: 'portrait', 10: 'landscape',
+  11: 'landscape', 12: 'portrait', 13: 'portrait', 14: 'portrait', 15: 'portrait',
+  16: 'landscape', 17: 'landscape', 18: 'landscape', 19: 'landscape', 20: 'portrait',
+  21: 'landscape', 22: 'landscape', 23: 'landscape', 24: 'landscape', 25: 'portrait',
+  26: 'landscape', 27: 'landscape', 28: 'landscape', 29: 'landscape', 30: 'portrait',
+  31: 'portrait', 32: 'portrait', 33: 'landscape', 34: 'portrait', 35: 'landscape',
+  36: 'landscape', 37: 'portrait', 38: 'portrait', 39: 'portrait', 40: 'landscape',
+  41: 'landscape', 42: 'portrait', 43: 'portrait', 44: 'landscape', 45: 'portrait',
+  46: 'portrait', 47: 'landscape', 48: 'landscape', 49: 'portrait', 50: 'portrait',
+  51: 'landscape', 52: 'landscape', 53: 'landscape', 54: 'landscape', 55: 'landscape',
+  56: 'landscape', 57: 'landscape', 58: 'landscape', 59: 'landscape', 60: 'landscape',
+  61: 'landscape', 62: 'landscape', 63: 'landscape', 64: 'landscape', 65: 'landscape',
+  66: 'landscape', 67: 'landscape', 68: 'landscape', 69: 'portrait', 70: 'landscape',
+  71: 'portrait', 72: 'portrait', 73: 'portrait', 74: 'portrait', 75: 'portrait',
+  76: 'portrait', 77: 'portrait', 78: 'portrait', 79: 'portrait', 80: 'portrait',
+  81: 'portrait', 82: 'landscape', 83: 'portrait', 84: 'portrait', 85: 'portrait',
+  86: 'portrait', 87: 'portrait', 88: 'landscape', 89: 'portrait', 90: 'portrait',
+  91: 'landscape', 92: 'landscape', 93: 'landscape', 94: 'landscape', 95: 'landscape',
+  96: 'landscape', 97: 'landscape', 98: 'landscape', 99: 'landscape', 100: 'landscape',
+  101: 'landscape', 102: 'landscape', 103: 'landscape', 104: 'landscape', 105: 'landscape',
+  106: 'portrait', 107: 'portrait', 108: 'portrait', 109: 'portrait', 110: 'portrait',
+  111: 'landscape', 112: 'landscape', 113: 'landscape', 114: 'portrait', 115: 'portrait',
+  116: 'landscape', 117: 'portrait', 118: 'portrait', 119: 'portrait', 120: 'portrait',
+}
+
 function pad(n) {
   return String(n).padStart(3, '0')
 }
@@ -296,9 +324,8 @@ function buildPhotos() {
     for (let n = ch.from; n <= ch.to; n++) {
       const srcNum = (SOURCES[ch.key] && SOURCES[ch.key][idx]) || n
       const image = asset(`images/wedding_${pad(srcNum)}.jpg`)
-      // Vary orientation: portrait-leaning albums with occasional wide/square.
-      const orientation =
-        idx % 5 === 0 ? 'landscape' : idx % 7 === 3 ? 'square' : 'portrait'
+      // Use each photo's REAL orientation so the card shape matches the image.
+      const orientation = ORIENTATION[srcNum] || 'portrait'
       const featured = idx === 0 || (ch.key === 'ceremony' && idx === 10)
       const photo = {
         id: n,
@@ -310,7 +337,9 @@ function buildPhotos() {
         orientation,
         tone: ch.tone,
         featured,
-        focusPosition: FOCUS_POOL[(n + idx) % FOCUS_POOL.length],
+        // Keep subjects centred — off-centre crops were cutting people out and
+        // showing bare walls.
+        focusPosition: 'center center',
         theme: ch.theme,
       }
       if (ch.key === 'forever') {
@@ -352,7 +381,7 @@ export const FILTERS = [
 // Poster + video used by the highlight section.
 export const VIDEO = {
   src: asset('videos/wedding-highlight.mp4'),
-  poster: asset('images/wedding_106.jpg'),
+  poster: asset('images/wedding_061.jpg'),
 }
 
 export default PHOTOS
